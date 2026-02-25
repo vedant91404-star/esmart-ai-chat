@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SmartAI - Ask Anything</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body {
+  background-color: #343541;
+  font-family: Arial;
+  margin: 0;
+  color: white;
+}
+
+header {
+  text-align: center;
+  padding: 20px;
+  background: #202123;
+  font-size: 22px;
+}
+
+#chatbox {
+  padding: 20px;
+  height: 70vh;
+  overflow-y: auto;
+}
+
+.message {
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.user {
+  background: #444654;
+  text-align: right;
+}
+
+.bot {
+  background: #10a37f;
+}
+
+#inputArea {
+  display: flex;
+  padding: 10px;
+  background: #202123;
+}
+
+input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  font-size: 16px;
+}
+
+button {
+  padding: 10px;
+  background: #10a37f;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>SmartAI - Ask Anything</header>
+
+<div id="chatbox"></div>
+
+<div id="inputArea">
+  <input type="text" id="question" placeholder="Ask something useful for daily life...">
+  <button onclick="askAI()">Send</button>
+</div>
+
+<script>
+
+const API_KEY = "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";
+
+async function askAI() {
+  let input = document.getElementById("question");
+  let chatbox = document.getElementById("chatbox");
+
+  let question = input.value;
+
+  chatbox.innerHTML += `<div class='message user'>${question}</div>`;
+  input.value = "";
+
+  let response = await fetch(
+    "https://api-inference.huggingface.co/models/google/flan-t5-large",
+    {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + API_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        inputs: question + " Give answer with simple explanation and practical evidence."
+      })
+    }
+  );
+
+  let data = await response.json();
+  let answer = data[0]?.generated_text || "Sorry, try again.";
+
+  chatbox.innerHTML += `<div class='message bot'>${answer}</div>`;
+  chatbox.scrollTop = chatbox.scrollHeight;
+}
+
+</script>
+
+</body>
+</html>
